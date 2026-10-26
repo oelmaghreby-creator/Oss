@@ -39,7 +39,15 @@ ollama serve     # if it is not already running as a service
 ollama run llama3.2
 ```
 
-On Windows, use the installer from https://ollama.com/download.
+### Windows
+
+Run this in PowerShell from the repo folder. It installs Ollama with `winget` and downloads the starter models:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\setup-windows.ps1
+```
+
+Or install `OllamaSetup.exe` from https://ollama.com/download by hand. NVIDIA and AMD Radeon GPUs are used automatically; keep your graphics driver up to date.
 
 ## C. Build from source
 
