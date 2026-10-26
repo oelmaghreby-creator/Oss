@@ -1,0 +1,8 @@
+# AMD GPU (ROCm) override. Linux only.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.amd.yml up -d
+services:
+  ollama:
+    image: ollama/ollama:rocm
+    devices:
+      - /dev/kfd
+      - /dev/dri
