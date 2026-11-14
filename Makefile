@@ -9,9 +9,13 @@ ifeq ($(GPU),amd)
 COMPOSE += -f docker-compose.amd.yml
 endif
 
-.PHONY: up down logs pull test install build-source
+ifeq ($(VPS),1)
+COMPOSE += -f docker-compose.vps.yml
+endif
 
-up:            ## Start Ollama + Open WebUI (GPU=nvidia|amd for acceleration)
+.PHONY: setup-vps up down logs pull test install build-source
+
+up:            ## Start Ollama + Open WebUI (GPU=nvidia|amd for acceleration, VPS=1 for public HTTPS)
 	$(COMPOSE) up -d
 
 down:          ## Stop containers (models are kept in volumes)
@@ -28,6 +32,9 @@ test:          ## Smoke-test the API
 
 install:       ## Native install (no Docker)
 	./scripts/install.sh
+
+setup-vps:     ## One-shot setup on a fresh Ubuntu/Debian VPS (run as root)
+	./scripts/setup-vps.sh
 
 build-source:  ## Build Ollama from source
 	./scripts/build-from-source.sh

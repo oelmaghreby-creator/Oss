@@ -1,0 +1,26 @@
+# VPS override: puts Caddy in front of Open WebUI so the chat UI is reachable
+# from the internet. With DOMAIN set, Caddy gets a Let's Encrypt certificate
+# automatically. Without it, the UI is served over plain HTTP on port 80.
+# The Ollama API itself stays bound to 127.0.0.1 on the server.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.vps.yml up -d
+services:
+  caddy:
+    image: caddy:${CADDY_IMAGE_TAG:-2}
+    container_name: caddy
+    restart: unless-stopped
+    depends_on:
+      - open-webui
+    environment:
+      - SITE_ADDRESS=${DOMAIN:-:80}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  caddy-data:
+  caddy-config:

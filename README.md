@@ -2,13 +2,14 @@
 
 Run large language models on your own machine with [Ollama](https://ollama.com), and optionally chat with them through [Open WebUI](https://github.com/open-webui/open-webui).
 
-There are three ways to get Ollama running. Pick one.
+There are four ways to get Ollama running. Pick one.
 
 | Option | Best for | Command |
 |---|---|---|
 | A. Docker (Ollama + chat UI) | Quick, isolated setup | `make up` |
 | B. Native install | Best performance on macOS (Metal) | `make install` |
 | C. Build from source | Hacking on Ollama itself | `make build-source` |
+| D. VPS (Hostinger etc.) | A private chat UI reachable from anywhere | `sudo ./scripts/setup-vps.sh` |
 
 ## A. Docker
 
@@ -58,6 +59,38 @@ make build-source                         # clones into ~/src/ollama
 OLLAMA_REF=v0.x.y make build-source       # build a specific tag
 ~/src/ollama/ollama serve
 ```
+
+## D. VPS (Hostinger or any Ubuntu/Debian server)
+
+A VPS has no GPU, so models run on the CPU and must fit in RAM. Plan for small models:
+
+| Hostinger plan | RAM | Models the script picks | Speed |
+|---|---|---|---|
+| KVM 1 | 4 GB | `qwen3:1.7b` | Usable |
+| KVM 2 | 8 GB | `qwen3:4b` | Usable |
+| KVM 4 | 16 GB | `qwen3:8b` | Slow (a few tokens/s) |
+| KVM 8 | 32 GB | `qwen3:14b` | Slow |
+
+1. In hPanel, create the VPS with the plain **Ubuntu 24.04** OS template and note its IP.
+2. Optional, for HTTPS: add a DNS **A record** for your domain (e.g. `chat.example.com`) pointing to that IP.
+3. SSH in and run:
+
+```bash
+ssh root@YOUR_VPS_IP
+git clone https://github.com/oelmaghreby-creator/Oss.git && cd Oss
+DOMAIN=chat.example.com ./scripts/setup-vps.sh    # or omit DOMAIN for plain HTTP
+```
+
+The script installs Docker, adds swap, enables the `ufw` firewall (SSH, 80, 443 only), starts Ollama + Open WebUI behind [Caddy](https://caddyserver.com), and pulls models sized for the server's RAM. It is safe to re-run.
+
+4. Open `https://chat.example.com` (or `http://YOUR_VPS_IP`) and **create your account immediately**: the first account becomes the admin. Later sign-ups wait for admin approval.
+
+Notes:
+
+- Without `DOMAIN` the login page is served over unencrypted HTTP. Use a domain for anything beyond a quick test.
+- The Ollama API is not exposed publicly. From your own machine, tunnel to it: `ssh -L 11434:localhost:11434 root@YOUR_VPS_IP`.
+- If you enabled Hostinger's own firewall in hPanel, allow ports 22, 80 and 443 there too.
+- Day-to-day: `make logs VPS=1`, `make down VPS=1`, `make up VPS=1`, `make pull`. Edit `OLLAMA_MODELS` in `.env` to change models.
 
 ## Choosing a model
 
