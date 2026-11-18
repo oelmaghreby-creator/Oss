@@ -1,0 +1,56 @@
+# Copy to config.toml and edit.
+
+[wake]
+window_start = "05:30"   # motion outside this window never starts the routine
+window_end = "10:00"
+motion_count = 3         # 3 motion events within 60 s = you are up
+motion_window_s = 60
+
+[shower]
+absence_s = 240          # no motion for 4 min after waking = you are in the shower
+
+[leave]
+grace_s = 30             # motion this soon after the door opens is you walking out
+confirm_s = 120          # no motion for 2 min after the door = you have left
+
+[items]
+names = ["keys", "car key", "phone", "laptop"]
+tag_timeout_s = 45
+
+# Optional: a Bluetooth tag per item. If a tag is still heard after you have
+# left, the "forgotten" step runs. Use tags with a fixed address (iTag, Tile
+# style beacons). Phones and AirTags rotate their address and will not match.
+# [items.tags]
+# keys = "AA:BB:CC:DD:EE:01"
+# "car key" = "AA:BB:CC:DD:EE:02"
+
+[gpio]                   # BCM pin numbers. Delete a line if the sensor is absent.
+motion_pin = 17          # PIR sensor output
+door_pin = 27            # reed switch between this pin and GND, closed when door is shut
+
+[http]                   # test without sensors: curl localhost:8765/event/motion
+host = "127.0.0.1"
+port = 8765
+
+[speech]
+command = ["espeak-ng", "-s", "150"]
+
+[notify]
+url = ""                 # e.g. an ntfy topic URL; the message is POSTed as plain text
+
+[steps.wake]
+say = "Good morning! Turn on the coffee machine, then go take a shower."
+http_get = []            # e.g. ["http://192.168.1.50/relay/0?turn=on"] for a Shelly plug
+
+[steps.back]
+say = "Welcome back. Make your coffee and iron your shirt."
+
+[steps.leaving]
+say = "Before you go: don't forget your {items}. And check the iron is off."
+
+[steps.forgotten]
+say = "You left without your {items}."
+notify = true
+
+[steps.home]
+say = "Welcome home."

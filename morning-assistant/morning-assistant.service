@@ -1,0 +1,11 @@
+[Unit]
+Description=Morning routine assistant
+After=network-online.target sound.target bluetooth.target
+
+[Service]
+WorkingDirectory=%h/Oss/morning-assistant
+ExecStart=/usr/bin/python3 -m morning_assistant --config config.toml
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
